@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     var shouldCalculateDecimalValue = false
     var hasClickedOperatorButton = false
     var hasFinishedInput = false
-    
+    var currentResult:Double = 0
     var removedDigitStack = [Double]()
     var removedOperatorStack = [String]()
     
@@ -55,26 +55,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func operatorButton_Click(_ sender: RoundButton) {
-        var currentResult = Double(integerValue) + decimalValue
+        currentResult = Double(integerValue) + decimalValue
         if hasClickedOperatorButton == true {
-            if (previousOperatorButton == "+" || previousOperatorButton == "-")
-                && (sender.titleLabel!.text! == "*" || sender.titleLabel!.text! == "/"){
-                if removedDigitStack.count >= 2{
-                    let origialFirstValue = removedDigitStack.removeLast()
-                    let origialSecondValue = removedDigitStack.removeLast()
-                    digitStack.removeLast()
-                    digitStack.append(origialFirstValue)
-                    operatorStack.removeLast()
-                    operatorStack.append(removedOperatorStack.removeLast())
-                    currentResult = origialSecondValue
-                    outputResult.text = String(currentResult)
-                }
-            }
-            if (previousOperatorButton == "*" || previousOperatorButton == "/")
-                && (sender.titleLabel!.text! == "+" || sender.titleLabel!.text! == "-"){
-                currentResult = digitStack.removeLast()
-                operatorStack.removeLast()
-            }
+            handleChangeOperatorCaseOne(sender: sender)
         }
         hasClickedOperatorButton = true
         previousOperatorButton = sender.titleLabel!.text!
@@ -84,7 +67,6 @@ class ViewController: UIViewController {
             operatorStack.append(currentOperator)
         }else{
             digitStack.append(currentResult)
-            print("current result is:" + String(currentResult))
             //check if previous operator is * or /
             let lastOperator:String = operatorStack[operatorStack.count-1]
             if lastOperator == "*" || lastOperator == "/" {
@@ -99,15 +81,30 @@ class ViewController: UIViewController {
         resetValue()
     }
     
-    func handleChangeOperatorCaseOne(){
-        
+    func handleChangeOperatorCaseOne(sender:RoundButton){
+        if (previousOperatorButton == "+" || previousOperatorButton == "-")
+            && (sender.titleLabel!.text! == "*" || sender.titleLabel!.text! == "/"){
+            if removedDigitStack.count >= 2{
+                let origialFirstValue = removedDigitStack.removeLast()
+                let origialSecondValue = removedDigitStack.removeLast()
+                digitStack.removeLast()
+                digitStack.append(origialFirstValue)
+                operatorStack.removeLast()
+                operatorStack.append(removedOperatorStack.removeLast())
+                currentResult = origialSecondValue
+                outputResult.text = String(currentResult)
+            }
+        }
+        if (previousOperatorButton == "*" || previousOperatorButton == "/")
+            && (sender.titleLabel!.text! == "+" || sender.titleLabel!.text! == "-"){
+            currentResult = digitStack.removeLast()
+            operatorStack.removeLast()
+        }
     }
     
     func hendleWhenLastOperatorIsMultiplicationOrDivide(lastOperator:String){
         let value1:Double = digitStack.removeLast()
-        //removedDigitStack.append(value1)
         let value2:Double = digitStack.removeLast()
-        //removedDigitStack.append(value2)
         operatorStack.removeLast()
         if lastOperator == "*" {
             tempResult = value1 * value2
